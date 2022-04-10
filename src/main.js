@@ -1,5 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
 import { OrbitControls } from './orbit-controls.js';
+import loadAirports from './airports.js'
 
 const loader = new THREE.TextureLoader();
 
@@ -19,7 +20,7 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(-1, 2, 4);
 scene.add(light);
 
-const earthGeometry = new THREE.SphereGeometry(1, 48, 32);
+const earthGeometry = new THREE.SphereGeometry(.999, 48, 32);
 const earthMaterial = new THREE.MeshBasicMaterial({
   map: loader.load('src/resources/earth.jpg'),
 });
@@ -27,7 +28,7 @@ const sphere = new THREE.Mesh(earthGeometry, earthMaterial)
 sphere.rotateY(-Math.PI / 2)
 scene.add(sphere);
 
-const pointGeometry = new THREE.CircleGeometry(0.005, 24, 16);
+const pointGeometry = new THREE.CircleGeometry(0.002, 24, 16);
 const pointMaterial = new THREE.MeshBasicMaterial({
   color: '#ff0000'
 })
@@ -44,7 +45,7 @@ function createPoint(pos) {
   const radPos = toRadians(pos)
   const point = new THREE.Mesh(pointGeometry, pointMaterial)
   point.rotateY(radPos[1])
-  point.rotateX(radPos[0])
+  point.rotateX(-radPos[0])
   point.translateZ(1)
   scene.add(point)
   return point
@@ -52,7 +53,7 @@ function createPoint(pos) {
 
 THREE.Vector3.fromSpherical = (r, phi, theta) => {
   const vector = new THREE.Vector3()
-  vector.setFromSphericalCoords(r, phi + Math.PI / 2, theta)
+  vector.setFromSphericalCoords(r, -phi + Math.PI / 2, theta)
   return vector
 }
 
@@ -79,18 +80,15 @@ function createLine(a, b) {
   return line
 }
 
-// createLine([-33.9416, -118.4085],[-44.8848, -93.2223])
-
-const msp = [-44.8848, -93.2223]
-const lax = [-33.9416, -118.4085]
-const ord = [-41.9803, -87.9090]
-
-createPoint(msp)
-createPoint(lax)
-createPoint(ord)
-
-createLine(msp, ord)
-createLine(msp, lax)
+loadAirports().then(airports => {
+  const msp = airports.find(port => port.code === 'MSP')
+  for (const airport of airports) {
+    if (airport.lat == 0) {
+      console.log(airport)
+    }
+    createPoint([airport.lat, airport.long])
+  }
+})
 
 function render(time) {
   const canvas = renderer.domElement;
