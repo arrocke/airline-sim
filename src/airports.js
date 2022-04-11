@@ -6,7 +6,7 @@ async function loadAirports() {
   const airports = []
   for (const line of lines) {
     const fields = line.split(':')
-    if (fields[1] !== 'N/A' && fields[4] === 'USA') {
+    if (fields[1] !== 'N/A') {
       airports.push({
         code: fields[1],
         lat: fields[14],
