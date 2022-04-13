@@ -6,6 +6,7 @@ const loader = new THREE.TextureLoader();
 
 const canvas = document.querySelector('canvas')
 const renderer = new THREE.WebGLRenderer({ canvas })
+// renderer.setClearColor(0xffffff, 1);
 
 const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 5)
 camera.rotateY(-Math.PI / 2)
@@ -21,11 +22,15 @@ light.position.set(-1, 2, 4);
 scene.add(light);
 
 const earthGeometry = new THREE.SphereGeometry(1, 80, 60);
-const earthMaterial = new THREE.MeshBasicMaterial({
-  color: '#03a9f4',
-  map: loader.load('src/resources/countries.png'),
+const bordersMaterial = new THREE.MeshBasicMaterial({
+  map: loader.load('src/resources/borders.png'),
 });
-const sphere = new THREE.Mesh(earthGeometry, earthMaterial)
+const countriesMaterial = new THREE.MeshBasicMaterial({
+  color: '#03a9f4',
+  map: loader.load('src/resources/countries-index.png'),
+});
+const sphere = new THREE.Mesh(earthGeometry, bordersMaterial)
+console.log(sphere)
 sphere.rotateY(-Math.PI / 2)
 scene.add(sphere);
 
@@ -81,12 +86,12 @@ function createLine(a, b) {
   return line
 }
 
-loadAirports().then(airports => {
-  const msp = airports.find(port => port.code === 'MSP')
-  for (const airport of airports) {
-    createPoint([airport.lat, airport.long])
-  }
-})
+// loadAirports().then(airports => {
+//   const msp = airports.find(port => port.code === 'MSP')
+//   for (const airport of airports) {
+//     createPoint([airport.lat, airport.long])
+//   }
+// })
 
 function render(time) {
   const canvas = renderer.domElement;
