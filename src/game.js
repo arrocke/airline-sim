@@ -2,6 +2,52 @@ import * as THREE from '../node_modules/three/build/three.module.js'
 import { OrbitControls } from './orbit-controls.js';
 import loadAirports from './airports.js'
 
+const fragmentShaderReplacements = [
+  {
+    from: '#include <common>',
+    to: `
+      #include <common>
+      uniform sampler2D indexTexture;
+      uniform sampler2D paletteTexture;
+      uniform float paletteTextureWidth;
+    `,
+  },
+  {
+    from: '#include <color_fragment>',
+    to: `
+      #include <color_fragment>
+      {
+        vec4 indexColor = texture2D(indexTexture, vUv);
+        float index = indexColor.r == 0.0 ? 0.0 : 256.0 - indexColor.r * 255.0;
+        vec2 paletteUV = vec2((index + 0.5) / paletteTextureWidth, 0.5);
+        vec4 paletteColor = texture2D(paletteTexture, paletteUV);
+        // diffuseColor.rgb += paletteColor.rgb;   // white outlines
+        diffuseColor.rgb = paletteColor.rgb - diffuseColor.rgb;  // black outlines
+      }
+    `,
+  },
+];
+
+const maxNumCountries = 512;
+const palette = new Uint8Array(maxNumCountries * 4);
+const paletteTexture = new THREE.DataTexture(
+    palette, maxNumCountries, 1, THREE.RGBAFormat);
+paletteTexture.minFilter = THREE.NearestFilter;
+paletteTexture.magFilter = THREE.NearestFilter;
+
+for (let i = 0; i < palette.length; ++i) {
+  switch (i % 4) {
+    case 0:
+    case 1:
+    case 2:
+      palette[i] = 255
+      break
+  }
+}
+// set the ocean color (index #0)
+palette.set([100, 200, 255], 0);
+paletteTexture.needsUpdate = true;
+
 const loader = new THREE.TextureLoader();
 
 const canvas = document.querySelector('canvas')
@@ -21,10 +67,22 @@ const scene = new THREE.Scene()
 // light.position.set(-1, 2, 4);
 // scene.add(light);
 
+const indexTexture = loader.load('src/resources/countries-index.png');
+indexTexture.minFilter = THREE.NearestFilter;
+indexTexture.magFilter = THREE.NearestFilter;
+
 const earthGeometry = new THREE.SphereGeometry(1, 80, 60);
 const bordersMaterial = new THREE.MeshBasicMaterial({
-  map: loader.load('src/resources/countries-index.png'),
+  map: loader.load('src/resources/borders.png'),
 });
+bordersMaterial.onBeforeCompile = function(shader) {
+  fragmentShaderReplacements.forEach((rep) => {
+    shader.fragmentShader = shader.fragmentShader.replace(rep.from, rep.to);
+  });
+  shader.uniforms.paletteTexture = {value: paletteTexture};
+  shader.uniforms.indexTexture = {value: indexTexture};
+  shader.uniforms.paletteTextureWidth = {value: maxNumCountries};
+};
 const sphere = new THREE.Mesh(earthGeometry, bordersMaterial)
 sphere.rotateY(-Math.PI / 2)
 scene.add(sphere);
@@ -41,10 +99,6 @@ const lineMaterial = new THREE.LineBasicMaterial({
 {
   const pickingScene = new THREE.Scene();
   pickingScene.background = new THREE.Color(0);
-
-  const indexTexture = loader.load('src/resources/countries-index.png', render);
-  indexTexture.minFilter = THREE.NearestFilter;
-  indexTexture.magFilter = THREE.NearestFilter;
 
   const pickingMaterial = new THREE.MeshBasicMaterial({map: indexTexture});
   const pickingMesh = new THREE.Mesh(earthGeometry, pickingMaterial)
@@ -107,8 +161,31 @@ const lineMaterial = new THREE.LineBasicMaterial({
     };
   }
 
+  const maxClickTimeMs = 200;
+  const maxMoveDeltaSq = 5 * 5;
+  const startPosition = {};
+  let startTimeMs;
+
+  canvas.addEventListener('mousedown', (event) => {
+    startTimeMs = performance.now();
+    const pos = getCanvasRelativePosition(event);
+    startPosition.x = pos.x;
+    startPosition.y = pos.y;
+  });
+
   canvas.addEventListener('mouseup', (event) => {
+    const clickTimeMs = performance.now() - startTimeMs;
+    if (clickTimeMs > maxClickTimeMs) {
+      return;
+    }
+
     const position = getCanvasRelativePosition(event);
+    const moveDeltaSq = (startPosition.x - position.x) ** 2 +
+                        (startPosition.y - position.y) ** 2;
+    if (moveDeltaSq > maxMoveDeltaSq) {
+      return;
+    }
+
     console.log(pickHelper.pick(position, pickingScene, camera))
   });
 }
