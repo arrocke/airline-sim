@@ -17,20 +17,15 @@ const controls = new OrbitControls( camera, renderer.domElement );
 
 const scene = new THREE.Scene()
 
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(-1, 2, 4);
-scene.add(light);
+// const light = new THREE.DirectionalLight(0xffffff, 1);
+// light.position.set(-1, 2, 4);
+// scene.add(light);
 
 const earthGeometry = new THREE.SphereGeometry(1, 80, 60);
 const bordersMaterial = new THREE.MeshBasicMaterial({
-  map: loader.load('src/resources/borders.png'),
-});
-const countriesMaterial = new THREE.MeshBasicMaterial({
-  color: '#03a9f4',
   map: loader.load('src/resources/countries-index.png'),
 });
 const sphere = new THREE.Mesh(earthGeometry, bordersMaterial)
-console.log(sphere)
 sphere.rotateY(-Math.PI / 2)
 scene.add(sphere);
 
@@ -42,6 +37,81 @@ const lineMaterial = new THREE.LineBasicMaterial({
   color: '#ff0000',
   linewidth: 1
 })
+
+{
+  const pickingScene = new THREE.Scene();
+  pickingScene.background = new THREE.Color(0);
+
+  const indexTexture = loader.load('src/resources/countries-index.png', render);
+  indexTexture.minFilter = THREE.NearestFilter;
+  indexTexture.magFilter = THREE.NearestFilter;
+
+  const pickingMaterial = new THREE.MeshBasicMaterial({map: indexTexture});
+  const pickingMesh = new THREE.Mesh(earthGeometry, pickingMaterial)
+  pickingMesh.rotateY(-Math.PI / 2)
+  pickingScene.add(pickingMesh);
+
+  class GPUPickHelper {
+    constructor() {
+      // create a 1x1 pixel render target
+      this.pickingTexture = new THREE.WebGLRenderTarget(1, 1);
+      this.pixelBuffer = new Uint8Array(4);
+    }
+    pick(cssPosition, scene, camera) {
+      pause()
+      const {pickingTexture, pixelBuffer} = this;
+   
+      // set the view offset to represent just a single pixel under the mouse
+      const pixelRatio = window.devicePixelRatio
+      const context = renderer.getContext()
+      camera.setViewOffset(
+          context.drawingBufferWidth,   // full width
+          context.drawingBufferHeight,  // full top
+          cssPosition.x * pixelRatio | 0,        // rect x
+          cssPosition.y * pixelRatio | 0,        // rect y
+          1,                                     // rect width
+          1,                                     // rect height
+      );
+      // render the scene
+      renderer.setRenderTarget(pickingTexture);
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      // clear the view offset so rendering returns to normal
+      camera.clearViewOffset();
+      //read the pixel
+      renderer.readRenderTargetPixels(
+          pickingTexture,
+          0,   // x
+          0,   // y
+          1,   // width
+          1,   // height
+          pixelBuffer);
+   
+      const id =
+          (pixelBuffer[0] << 16) |
+          (pixelBuffer[1] <<  8) |
+          (pixelBuffer[2] <<  0);
+
+      resume()
+      return id;
+    }
+  }
+
+  const pickHelper = new GPUPickHelper();
+
+  function getCanvasRelativePosition(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
+  canvas.addEventListener('mouseup', (event) => {
+    const position = getCanvasRelativePosition(event);
+    console.log(pickHelper.pick(position, pickingScene, camera))
+  });
+}
 
 function toRadians(point) {
   return [THREE.MathUtils.degToRad(point[0]), THREE.MathUtils.degToRad(point[1])]
@@ -93,7 +163,10 @@ function createLine(a, b) {
 //   }
 // })
 
+let isPaused = false
+
 function render(time) {
+  if (isPaused) return
   const canvas = renderer.domElement;
   const pixelRatio = window.devicePixelRatio;
   const width  = canvas.clientWidth  * pixelRatio | 0;
@@ -109,4 +182,13 @@ function render(time) {
  
   requestAnimationFrame(render);
 }
-requestAnimationFrame(render);
+
+function pause() {
+  isPaused = true
+}
+
+function resume() {
+  isPaused = false
+  requestAnimationFrame(render)
+}
+resume()
