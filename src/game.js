@@ -112,12 +112,12 @@ function createLine(a, b) {
   return line
 }
 
-loadAirports().then(airports => {
-  const msp = airports.find(port => port.code === 'MSP')
-  for (const airport of airports) {
-    createPoint([airport.lat, airport.long])
-  }
-})
+// loadAirports().then(airports => {
+//   const msp = airports.find(port => port.code === 'MSP')
+//   for (const airport of airports) {
+//     createPoint([airport.lat, airport.long])
+//   }
+// })
 
 let isPaused = false
 
