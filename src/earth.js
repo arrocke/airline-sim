@@ -21,7 +21,7 @@ const countryColorReplacements = [
         float index = indexColor.r == 0.0 ? 0.0 : 256.0 - indexColor.r * 255.0;
         vec2 paletteUV = vec2((index + 0.5) / paletteTextureWidth, 0.5);
         vec4 paletteColor = texture2D(paletteTexture, paletteUV);
-        diffuseColor.rgb = paletteColor.r - diffuseColor.rgb;
+        diffuseColor.rgb = paletteColor.rgb - diffuseColor.rgb;
       }
     `
   }
@@ -31,6 +31,7 @@ const populationReplacements = [
     from: '#include <common>',
     to: `
       #include <common>
+      uniform sampler2D indexTexture;
       uniform sampler2D populationTexture;
     `
   },
@@ -39,8 +40,10 @@ const populationReplacements = [
     to: `
       #include <color_fragment>
       {
+        vec4 indexColor = texture2D(indexTexture, vUv);
         vec4 populationColor = texture2D(populationTexture, vUv);
-        diffuseColor.rgb = vec3(populationColor.r, 0.0, 0.0) + diffuseColor.rgb;
+        vec3 finalPopColor = indexColor.r == 0.0 && populationColor.r == 0.0 ? vec3(1.0, 1.0, 1.0) : vec3(populationColor.r, 0.0, 0.0);
+        diffuseColor.rgb = finalPopColor.rgb + diffuseColor.rgb;
       }
     `
   }
@@ -49,9 +52,9 @@ const populationReplacements = [
 export default class Earth {
   constructor() {
     this.borderTexture = loader.load('src/resources/borders.png')
+    // this.borderTexture.minFilter = THREE.NearestFilter;
+    // this.borderTexture.magFilter = THREE.NearestFilter;
     this.populationTexture = loader.load('src/resources/population.png')
-    this.populationTexture.minFilter = THREE.NearestFilter;
-    this.populationTexture.magFilter = THREE.NearestFilter;
     this.indexTexture = loader.load('src/resources/countries-index.png');
     this.indexTexture.minFilter = THREE.NearestFilter;
     this.indexTexture.magFilter = THREE.NearestFilter;
@@ -73,15 +76,22 @@ export default class Earth {
       map: this.borderTexture
     });
     this.material.onBeforeCompile = (shader) => {
-      // countryColorReplacements.forEach((rep) => {
-      //   shader.fragmentShader = shader.fragmentShader.replace(rep.from, rep.to);
-      // });
-      // shader.uniforms.paletteTexture = { value: this.paletteTexture };
-      // shader.uniforms.indexTexture = { value: this.indexTexture };
-      // shader.uniforms.paletteTextureWidth = { value: MAX_COUNTRIES };
+      countryColorReplacements.forEach((rep) => {
+        shader.fragmentShader = shader.fragmentShader.replace(rep.from, rep.to);
+      });
+      shader.uniforms.paletteTexture = { value: this.paletteTexture };
+      shader.uniforms.indexTexture = { value: this.indexTexture };
+      shader.uniforms.paletteTextureWidth = { value: MAX_COUNTRIES };
+    };
+
+    this.populationMaterial = new THREE.MeshBasicMaterial({
+      map: this.borderTexture
+    });
+    this.populationMaterial.onBeforeCompile = (shader) => {
       populationReplacements.forEach((rep) => {
         shader.fragmentShader = shader.fragmentShader.replace(rep.from, rep.to);
       });
+      shader.uniforms.indexTexture = { value: this.indexTexture };
       shader.uniforms.populationTexture = { value: this.populationTexture };
     };
 
@@ -89,5 +99,13 @@ export default class Earth {
 
     this.pickingMaterial = new THREE.MeshBasicMaterial({ map: this.indexTexture });
     this.pickingMesh = new THREE.Mesh(this.geometry, this.pickingMaterial)
+  }
+
+  showPopulation() {
+    this.mesh.material = this.populationMaterial
+  }
+
+  showDefault() {
+    this.mesh.material = this.material
   }
 }

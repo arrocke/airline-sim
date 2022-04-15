@@ -3,8 +3,11 @@ import { OrbitControls } from './orbit-controls.js';
 import loadAirports from './airports.js'
 import Earth from './earth.js';
 import Picker from './picker.js';
+import HeadsUpDisplay from './hud.js';
 
 const canvas = document.querySelector('canvas')
+const hudDiv = document.querySelector('#hud')
+
 const renderer = new THREE.WebGLRenderer({ canvas })
 const scene = new THREE.Scene()
 
@@ -13,7 +16,6 @@ camera.rotateY(-Math.PI / 2)
 camera.rotateX(-Math.PI / 4)
 camera.translateZ(2)
 
-const controls = new OrbitControls( camera, renderer.domElement );
 
 const earth = new Earth()
 const picker = new Picker(renderer, camera)
@@ -119,10 +121,20 @@ function createLine(a, b) {
 //   }
 // })
 
-let isPaused = false
+const hud = new HeadsUpDisplay({
+  el: hudDiv,
+  onModeChange: (mode) => {
+    if (mode === 'selected') {
+      earth.showDefault()
+    } else {
+      earth.showPopulation()
+    }
+  }
+})
+
+const controls = new OrbitControls(camera, renderer.domElement);
 
 function render(time) {
-  if (isPaused) return
   const canvas = renderer.domElement;
   const pixelRatio = window.devicePixelRatio;
   const width  = canvas.clientWidth  * pixelRatio | 0;
@@ -138,13 +150,6 @@ function render(time) {
  
   requestAnimationFrame(render);
 }
+requestAnimationFrame(render)
 
-function pause() {
-  isPaused = true
-}
-
-function resume() {
-  isPaused = false
-  requestAnimationFrame(render)
-}
-resume()
+window.earth = earth
