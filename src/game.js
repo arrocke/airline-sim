@@ -5,6 +5,13 @@ import PopulationData from './population.js'
 import Earth from './earth.js';
 import Picker from './picker.js';
 import HeadsUpDisplay from './hud.js';
+import { decay } from './utils.js';
+
+THREE.Vector3.fromSpherical = (r, phi, theta) => {
+  const vector = new THREE.Vector3()
+  vector.setFromSphericalCoords(r, -phi + Math.PI / 2, theta)
+  return vector
+}
 
 const canvas = document.querySelector('canvas')
 const hudDiv = document.querySelector('#hud')
@@ -17,7 +24,20 @@ camera.rotateY(-Math.PI / 2)
 camera.rotateX(-Math.PI / 4)
 camera.translateZ(2)
 
+const chicago = [41.8781, -87.6298]
+
 const populationData = new PopulationData()
+window.populationData = populationData
+THREE.DefaultLoadingManager.onLoad = () => {
+  const data = populationData.getDataNearPoint(chicago[0], chicago[1], 360)
+
+  const demand = data.reduce((demand, { dist, value }) => demand + value * decay(dist), 0)
+  console.log(data.reduce((demand, { dist, value }) => demand + value, 0))
+  console.log(demand)
+  requestAnimationFrame(render)
+}
+
+// TODO: draw a circle around chicago representing selection region
 
 const earth = new Earth()
 const picker = new Picker(renderer, camera)
@@ -87,12 +107,6 @@ function createPoint(pos) {
   return point
 }
 
-THREE.Vector3.fromSpherical = (r, phi, theta) => {
-  const vector = new THREE.Vector3()
-  vector.setFromSphericalCoords(r, -phi + Math.PI / 2, theta)
-  return vector
-}
-
 const MAX_LINE_SEG_ANGLE = 0.05
 
 function createLine(a, b) {
@@ -152,6 +166,5 @@ function render(time) {
  
   requestAnimationFrame(render);
 }
-requestAnimationFrame(render)
 
 window.earth = earth
