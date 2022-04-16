@@ -1,6 +1,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
 import { OrbitControls } from './orbit-controls.js';
 import loadAirports from './airports.js'
+import PopulationData from './population.js'
 import Earth from './earth.js';
 import Picker from './picker.js';
 import HeadsUpDisplay from './hud.js';
@@ -16,6 +17,7 @@ camera.rotateY(-Math.PI / 2)
 camera.rotateX(-Math.PI / 4)
 camera.translateZ(2)
 
+const populationData = new PopulationData()
 
 const earth = new Earth()
 const picker = new Picker(renderer, camera)

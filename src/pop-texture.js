@@ -13,7 +13,7 @@ async function render() {
   const ctx = canvas.getContext('2d')
 
   const pixels = new ImageData(WIDTH, HEIGHT)
-  const response = await fetch('/src/resources/population.txt')
+  const response = await fetch('/src/resources/population-precise.txt')
   const data = await response.text()
   let max = 0
   const rows = data.trim().split('\r\n').slice(6).map((line, i) => {
