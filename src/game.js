@@ -25,19 +25,9 @@ camera.rotateX(-Math.PI / 4)
 camera.translateZ(2)
 
 const chicago = [41.8781, -87.6298]
+const minneapolis = [44.9778, -93.2650]
 
-const populationData = new PopulationData()
-window.populationData = populationData
-THREE.DefaultLoadingManager.onLoad = () => {
-  const data = populationData.getDataNearPoint(chicago[0], chicago[1], 360)
 
-  const demand = data.reduce((demand, { dist, value }) => demand + value * decay(dist), 0)
-  console.log(data.reduce((demand, { dist, value }) => demand + value, 0))
-  console.log(demand)
-  requestAnimationFrame(render)
-}
-
-// TODO: draw a circle around chicago representing selection region
 
 const earth = new Earth()
 const picker = new Picker(renderer, camera)
@@ -46,7 +36,7 @@ scene.add(earth.mesh)
 
 const pointGeometry = new THREE.CircleGeometry(0.002, 24, 16);
 const pointMaterial = new THREE.MeshBasicMaterial({
-  color: '#ff0000'
+  color: '#0000ff'
 })
 const lineMaterial = new THREE.LineBasicMaterial({
   color: '#ff0000',
@@ -129,6 +119,21 @@ function createLine(a, b) {
   scene.add(line)
   return line
 }
+
+// const selectionGeometry = new THREE.SphereGeometry(1.001, 40, 7, 0, Math.PI * 2, 0, 0.056506043)
+// const selectionMaterial = new THREE.MeshBasicMaterial({
+//   color: '#00ff00',
+// })
+// selectionMaterial.opacity = 0.5
+// selectionMaterial.transparent = true
+// const selectionMesh = new THREE.Mesh(selectionGeometry, selectionMaterial)
+// selectionMesh.rotateY(chicago[1] * Math.PI / 180)
+// selectionMesh.rotateX(Math.PI / 2 - chicago[0] * Math.PI / 180)
+// scene.add(selectionMesh)
+
+createPoint(chicago)
+
+const populationData = new PopulationData()
 
 // loadAirports().then(airports => {
 //   const msp = airports.find(port => port.code === 'MSP')

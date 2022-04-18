@@ -52,7 +52,7 @@ export default class PopulationData {
 					const dist = latLongDistance([lat, long], [_lat, _long])
 					const value = this.data[i][j]
 					if (dist <= rad) {
-						results.push({ dist, value })
+						results.push({ dist, value, lat: _lat, long: _long })
 					}
 				}
 			}
