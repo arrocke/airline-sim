@@ -122,6 +122,10 @@ const hud = new HeadsUpDisplay({
 })
 
 const controls = new OrbitControls(camera, labelsDiv);
+controls.zoomSpeed = 0.3
+controls.minDistance = 1.1
+controls.maxDistance = 2
+controls.enablePan = false
 
 function render(time) {
   const canvas = renderer.domElement;
