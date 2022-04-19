@@ -9,6 +9,7 @@ export default class HeadsUpDisplay {
     this.modeButton.style.position = 'absolute'
     this.modeButton.style.left = 0
     this.modeButton.style.bottom = 0
+    this.modeButton.style.pointerEvents = 'auto'
     this.modeButton.addEventListener('click', e => {
       e.stopPropagation()
       if (this.mode === 'selected') {
