@@ -1,11 +1,9 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
 import { OrbitControls } from './orbit-controls.js';
-import loadAirports from './airports.js'
 import PopulationData from './population.js'
 import Earth from './earth.js';
 import Picker from './picker.js';
 import HeadsUpDisplay from './hud.js';
-import { decay } from './utils.js';
 
 THREE.Vector3.fromSpherical = (r, phi, theta) => {
   const vector = new THREE.Vector3()
@@ -34,10 +32,12 @@ const picker = new Picker(renderer, camera)
 picker.add(earth.pickingMesh)
 scene.add(earth.mesh)
 
-const pointGeometry = new THREE.CircleGeometry(0.002, 24, 16);
+const pointGeometry = new THREE.CircleGeometry(0.004, 24, 16);
 const pointMaterial = new THREE.MeshBasicMaterial({
   color: '#0000ff'
 })
+pointMaterial.transparent = true
+pointMaterial.opacity = 0.5
 const lineMaterial = new THREE.LineBasicMaterial({
   color: '#ff0000',
   linewidth: 1
@@ -155,6 +155,14 @@ const hud = new HeadsUpDisplay({
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
+const jsonLoader = new THREE.FileLoader()
+jsonLoader.responseType = 'json'
+jsonLoader.load('src/resources/cities.json', (cities) => {
+  for (const city of cities) {
+    createPoint([city.lat, city.long])
+  }
+})
+
 function render(time) {
   const canvas = renderer.domElement;
   const pixelRatio = window.devicePixelRatio;
@@ -170,6 +178,10 @@ function render(time) {
   renderer.render(scene, camera);
  
   requestAnimationFrame(render);
+}
+
+THREE.DefaultLoadingManager.onLoad = () => {
+  requestAnimationFrame(render)
 }
 
 window.earth = earth

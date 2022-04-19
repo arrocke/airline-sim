@@ -1,0 +1,104 @@
+[
+  {
+    "country": "USA",
+    "city": "New York City",
+    "lat": 40.7128,
+    "long": -74.0060
+  },
+  {
+    "country": "USA",
+    "city": "Los Angeles",
+    "lat": 34.0522,
+    "long": -118.2437
+  },
+  {
+    "country": "USA",
+    "city": "Chicago",
+    "lat": 41.8781,
+    "long": -87.6298
+  },
+  {
+    "country": "USA",
+    "city": "Dallas",
+    "lat": 32.7767,
+    "long": -96.7970
+  },
+  {
+    "country": "USA",
+    "city": "Houston",
+    "lat": 29.7604,
+    "long": -95.3698
+  },
+  {
+    "country": "USA",
+    "city": "Washington",
+    "lat": 38.9072,
+    "long": -77.0369
+  },
+  {
+    "country": "USA",
+    "city": "Philadelphia",
+    "lat": 39.9526,
+    "long": -75.1652
+  },
+  {
+    "country": "USA",
+    "city": "Atlanta",
+    "lat": 33.7490,
+    "long": -84.3880
+  },
+  {
+    "country": "USA",
+    "city": "Miami",
+    "lat": 25.7617,
+    "long": -80.1918
+  },
+  {
+    "country": "USA",
+    "city": "Phoenix",
+    "lat": 33.4484,
+    "long": -112.0740
+  },
+  {
+    "country": "USA",
+    "city": "Boston",
+    "lat": 42.3601,
+    "long": -71.0589
+  },
+  {
+    "country": "USA",
+    "city": "San Francisco",
+    "lat": 37.7749,
+    "long": -122.4194
+  },
+  {
+    "country": "USA",
+    "city": "Detroit",
+    "lat": 42.3314,
+    "long": -83.0458
+  },
+  {
+    "country": "USA",
+    "city": "Seattle",
+    "lat": 47.6062,
+    "long": -122.3321
+  },
+  {
+    "country": "USA",
+    "city": "Minneapolis",
+    "lat": 44.9778,
+    "long": -93.2650
+  },
+  {
+    "country": "USA",
+    "city": "San Diego",
+    "lat": 32.7157,
+    "long": -117.1611
+  },
+  {
+    "country": "USA",
+    "city": "Tampa",
+    "lat": 27.9506,
+    "long": -82.4572
+  }
+]
