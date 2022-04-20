@@ -99,6 +99,8 @@ export default class Earth {
 
     this.pickingMaterial = new THREE.MeshBasicMaterial({ map: this.indexTexture });
     this.pickingMesh = new THREE.Mesh(this.geometry, this.pickingMaterial)
+
+    this.raycaster = new THREE.Raycaster();
   }
 
   showPopulation() {
@@ -107,5 +109,19 @@ export default class Earth {
 
   showDefault() {
     this.mesh.material = this.material
+  }
+
+  getMouseIntersection(camera, pointer) {
+    this.raycaster.setFromCamera(pointer, camera)
+    const point = this.raycaster.intersectObject(this.mesh)[0]?.point
+    if (point) {
+      const spherical = new THREE.Spherical()
+      spherical.setFromVector3(point)
+      const latlong = {
+        lat: 90 - spherical.phi / Math.PI * 180,
+        long: spherical.theta / Math.PI * 180
+      }
+      return latlong
+    }
   }
 }

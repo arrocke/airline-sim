@@ -4,10 +4,14 @@ import { CSS3DObject } from './css-renderer.js';
 export class CityFactory {
   constructor () {
     this.cities = []
+    this.selectedCity = null
 
     this.geometry = new THREE.CircleGeometry(0.004, 24, 16);
     this.material = new THREE.MeshBasicMaterial({
       color: '#0000ff'
+    })
+    this.selectedMaterial = new THREE.MeshBasicMaterial({
+      color: '#00ff00'
     })
     this.material.transparent = true
     this.material.opacity = 0.5
@@ -38,9 +42,37 @@ export class CityFactory {
       city.long * Math.PI / 180
     )
 
-    const cityData = { mesh, label }
+    const cityData = { ...city, mesh, label }
     this.cities.push(cityData)
     return cityData
+  }
+
+  findCityNear(coord, rad) {
+    return this.cities.find(city => {
+      const dist = Math.sqrt(
+        Math.pow(coord.lat - city.lat, 2) +
+        Math.pow(coord.long - city.long, 2)
+      )
+      return dist <= rad
+    })
+  }
+
+  selectCityNear(coord, rad) {
+    const city = this.findCityNear(coord, rad)
+    if (city) {
+      this.unselectCity()
+      this.selectedCity = city
+      this.selectedCity.mesh.material = this.selectedMaterial
+    } else {
+      this.unselectCity()
+    }
+  }
+
+  unselectCity() {
+    if (this.selectedCity) {
+      this.selectedCity.mesh.material = this.material
+      this.selectedCity = null
+    }
   }
 
   update({ glScene, cssScene, cameraDirection }) {
