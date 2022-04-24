@@ -6,39 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Airline Sim</title>
     <style>
-      #root {
+      .canvas-container {
         position: relative;
-        width: 100%;
-        height: 100%; 
-      }
-
-      #canvas,
-      #labels,
-      #hud {
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
-        position: absolute;
-      }
-
-      #hud {
-        pointer-events: none;
-      }
-
-      .city-label {
-        color: black;
-        font-weight: bold;
-        padding-bottom: 32px;
+        width: 100vw;
+        height: 100vh; 
       }
     </style>
   </head>
   <body style="margin:0; height: 100vh; overflow:hidden; position: relative;">
-    <div id="root">
-      <canvas id="canvas"></canvas>
-      <div id="labels"></div>
-      <div id="hud"></div>
-    </div>
-    <script type="module" src="/src/main.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
