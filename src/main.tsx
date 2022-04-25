@@ -27,7 +27,7 @@ function App() {
           minDistance={1.5}
           maxDistance={3}
         />
-        <Earth unlockedCountries={unlockedCountries} onSelectedCountryChange={unlockCountry} />
+        <Earth unlockedCountries={unlockedCountries} onSelectedCountryChange={unlockCountry} onClick={console.log} />
       </Canvas>
     </div>
   )
