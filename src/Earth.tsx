@@ -56,15 +56,11 @@ function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: Ea
   return <>
     <mesh onClick={shouldHandleClick ? handleClick : undefined} geometry={geometry.current}>
       <EarthMaterial unlockedCountries={unlockedCountries} />
-      <EarthLabel lat={39.029} long={-97.273}>
-        United States
-      </EarthLabel>
-      <EarthLabel lat={23.347} long={-102.128}>
-        Mexico
-      </EarthLabel>
-      <EarthLabel lat={57.562} long={-112.399}>
-        Canada
-      </EarthLabel>
+      {countries.map(country => 
+        <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long}>
+          {country.name}
+        </EarthLabel>
+      )}
     </mesh>
     { onSelectedCountryChange
         ? <Picker ref={picker}>

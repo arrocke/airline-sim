@@ -18,7 +18,6 @@ function App() {
   return (
     <div className="canvas-container">
       <Canvas linear flat>
-        <color attach="background" args={["black"]} />
         <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
         <OrbitControls
           camera={camera.current}
