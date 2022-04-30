@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei'
+import { Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
@@ -7,11 +7,13 @@ export interface EarthLabelProps {
   lat: number
   long: number
   children: string
+  camera: THREE.Camera
 }
 
-function EarthLabel({ lat, long, children }: EarthLabelProps) {
+function EarthLabel({ lat, long, children, camera }: EarthLabelProps) {
   const cameraDirection = useRef(new THREE.Vector3())
-  const label = useRef<HTMLDivElement>(null)
+  const lookAtTarget = useRef(new THREE.Vector3())
+  const label = useRef<THREE.Mesh>(null)
   const previouslyVisible = useRef<boolean>()
 
   const position = useMemo(() => {
@@ -20,19 +22,24 @@ function EarthLabel({ lat, long, children }: EarthLabelProps) {
     return position
   }, [lat, long])
 
-  useFrame(({ camera }) => {
+  useFrame(() => {
     camera.getWorldDirection(cameraDirection.current)
     const dot = cameraDirection.current.negate().dot(position)
     const isVisible = dot > 0.65
     if (isVisible !== previouslyVisible.current && label.current) {
-      label.current.style.display = isVisible ? 'block' : 'none'
+      label.current.visible = isVisible
       previouslyVisible.current = isVisible
+    }
+    if (isVisible && label.current) {
+      lookAtTarget.current.copy(position)
+      lookAtTarget.current.add(cameraDirection.current)
+      label.current.lookAt(lookAtTarget.current)
     }
   })
 
-  return <Html ref={label} position={position} center style={{ whiteSpace: 'nowrap', pointerEvents: 'none', display: 'none' }}>
+  return <Text ref={label} position={position} color="black" fontSize={0.025}>
     {children}
-  </Html>
+  </Text>
 }
 
 export default EarthLabel

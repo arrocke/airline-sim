@@ -3,7 +3,7 @@ import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three';
 import countries from './resources/countries.json'
-import { ThreeEvent } from '@react-three/fiber';
+import { createPortal, ThreeEvent, useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import Picker, { PickerRef } from './Picker';
 import EarthMaterial from './EarthMaterial';
@@ -16,7 +16,16 @@ export interface EarthProps {
 }
 
 function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: EarthProps) {
+  const camera = useThree(state => state.camera)
   const geometry = useRef(new THREE.SphereGeometry(1, 80, 60, -Math.PI / 2))
+  const labelScene = useRef(new THREE.Scene())
+
+  useFrame(({ gl, camera }) => {
+    gl.autoClear = false
+    gl.clearDepth()
+    gl.render(labelScene.current, camera)
+    gl.autoClear = true
+  }, 3)
 
   const { indexTexture } = useTexture({
     indexTexture: 'src/resources/countries-index.png'
@@ -56,10 +65,15 @@ function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: Ea
   return <>
     <mesh onClick={shouldHandleClick ? handleClick : undefined} geometry={geometry.current}>
       <EarthMaterial unlockedCountries={unlockedCountries} />
-      {countries.map(country => 
-        <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long}>
-          {country.name}
-        </EarthLabel>
+      {createPortal(
+        <>
+          {countries.map(country => 
+            <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long} camera={camera}>
+              {country.name}
+            </EarthLabel>
+          )}
+        </>,
+        labelScene.current
       )}
     </mesh>
     { onSelectedCountryChange
