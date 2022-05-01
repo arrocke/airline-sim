@@ -51,6 +51,7 @@ function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: Ea
   const shouldHandleClick = !!onSelectedCountryChange || !!onClick
 
   const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 0) return
     pick(e)
     if (onClick) {
       const intersection = e.intersections[0]
