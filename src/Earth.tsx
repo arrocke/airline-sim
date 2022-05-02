@@ -16,16 +16,7 @@ export interface EarthProps {
 }
 
 function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: EarthProps) {
-  const camera = useThree(state => state.camera)
   const geometry = useRef(new THREE.SphereGeometry(1, 80, 60, -Math.PI / 2))
-  const labelScene = useRef(new THREE.Scene())
-
-  useFrame(({ gl, camera }) => {
-    gl.autoClear = false
-    gl.clearDepth()
-    gl.render(labelScene.current, camera)
-    gl.autoClear = true
-  }, 3)
 
   const { indexTexture } = useTexture({
     indexTexture: 'src/resources/countries-index.png'
@@ -66,15 +57,10 @@ function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: Ea
   return <>
     <mesh onClick={shouldHandleClick ? handleClick : undefined} geometry={geometry.current}>
       <EarthMaterial unlockedCountries={unlockedCountries} />
-      {createPortal(
-        <>
-          {countries.map(country => 
-            <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long} camera={camera}>
-              {country.name}
-            </EarthLabel>
-          )}
-        </>,
-        labelScene.current
+      {countries.map(country => 
+        <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long}>
+          {country.name}
+        </EarthLabel>
       )}
     </mesh>
     { onSelectedCountryChange

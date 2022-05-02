@@ -2,15 +2,15 @@ import { Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { LabelScene } from './LabelScene'
 
 export interface EarthLabelProps {
   lat: number
   long: number
   children: string
-  camera: THREE.Camera
 }
 
-function EarthLabel({ lat, long, children, camera }: EarthLabelProps) {
+function EarthLabel({ lat, long, children }: EarthLabelProps) {
   const cameraDirection = useRef(new THREE.Vector3())
   const lookAtTarget = useRef(new THREE.Vector3())
   const label = useRef<THREE.Mesh>(null)
@@ -22,7 +22,7 @@ function EarthLabel({ lat, long, children, camera }: EarthLabelProps) {
     return position
   }, [lat, long])
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
     camera.getWorldDirection(cameraDirection.current)
     const dot = cameraDirection.current.negate().dot(position)
     const isVisible = dot > 0.65
@@ -37,9 +37,11 @@ function EarthLabel({ lat, long, children, camera }: EarthLabelProps) {
     }
   })
 
-  return <Text ref={label} position={position} color="black" fontSize={0.025}>
-    {children}
-  </Text>
+  return <LabelScene>
+    <Text ref={label} position={position} color="black" fontSize={0.025}>
+      {children}
+    </Text>
+  </LabelScene>
 }
 
 export default EarthLabel
