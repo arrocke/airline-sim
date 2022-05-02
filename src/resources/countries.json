@@ -42,7 +42,7 @@
   {
     "name": "Indonesia",
     "code": "IDN",
-    "labelCoords": { "lat": -3.08, "long": 119.70 }
+    "labelCoords": { "lat": -1.34, "long": 113.71 }
   },
   {
     "name": "Argentina",
@@ -772,7 +772,7 @@
   {
     "name": "Eritrea",
     "code": "ERI",
-    "labelCoords": { "lat": 11.84, "long": 42.45 }
+    "labelCoords": { "lat": 15.95, "long": 37.99 }
   },
   {
     "name": "Japan",
@@ -792,7 +792,7 @@
   {
     "name": "Saudi Arabia",
     "code": "SAU",
-    "labelCoords": { "lat": 15.52, "long": 47.85 }
+    "labelCoords": { "lat": 24.01, "long": 44.60 }
   },
   {
     "name": "Antarctica",

@@ -10,10 +10,13 @@ export interface EarthLabelProps {
   children: string
 }
 
+const center = new THREE.Vector3(0, 0, 0)
+
 function EarthLabel({ lat, long, children }: EarthLabelProps) {
   const cameraDirection = useRef(new THREE.Vector3())
+  const zoom = useRef<number>()
   const lookAtTarget = useRef(new THREE.Vector3())
-  const label = useRef<THREE.Mesh>(null)
+  const label = useRef<any>(null)
   const previouslyVisible = useRef<boolean>()
 
   const position = useMemo(() => {
@@ -34,6 +37,12 @@ function EarthLabel({ lat, long, children }: EarthLabelProps) {
       lookAtTarget.current.copy(position)
       lookAtTarget.current.add(cameraDirection.current)
       label.current.lookAt(lookAtTarget.current)
+    }
+    const newZoom = (camera.position.distanceTo(center) - 1.5) / 1.5
+    if (zoom.current !== newZoom) {
+      zoom.current = newZoom
+      label.current!.fontSize = THREE.MathUtils.lerp(0.01, 0.025, newZoom)
+      label.current!.sync()
     }
   })
 
