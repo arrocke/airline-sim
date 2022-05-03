@@ -5,6 +5,8 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
 import { LabelSceneProvider } from './LabelScene';
+import City from './City';
+import cities from './resources/cities.json'
 
 function Game() {
   const camera = useRef<THREE.PerspectiveCamera>()
@@ -35,6 +37,11 @@ function Game() {
       maxDistance={3}
     />
     <Earth unlockedCountries={unlockedCountries} onSelectedCountryChange={unlockCountry} onClick={console.log} />
+    {
+      cities.map((city, i) => 
+        <City key={i} lat={city.lat} long={city.long} name={city.name} />
+      )
+    }
   </LabelSceneProvider>
 }
 

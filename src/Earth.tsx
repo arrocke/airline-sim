@@ -1,13 +1,12 @@
 
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useLayoutEffect, useRef } from 'react'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three';
 import countries from './resources/countries.json'
-import { createPortal, ThreeEvent, useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+import { ThreeEvent } from '@react-three/fiber';
 import Picker, { PickerRef } from './Picker';
 import EarthMaterial from './EarthMaterial';
-import EarthLabel from './EarthLabel';
+import Label from './Label';
 
 export interface EarthProps {
   unlockedCountries?: string[]
@@ -58,9 +57,9 @@ function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: Ea
     <mesh onClick={shouldHandleClick ? handleClick : undefined} geometry={geometry.current}>
       <EarthMaterial unlockedCountries={unlockedCountries} />
       {countries.map(country => 
-        <EarthLabel key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long}>
+        <Label key={country.code} lat={country.labelCoords.lat} long={country.labelCoords.long}>
           {country.name}
-        </EarthLabel>
+        </Label>
       )}
     </mesh>
     { onSelectedCountryChange
