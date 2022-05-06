@@ -4,14 +4,14 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
-import { LabelSceneProvider } from './LabelScene';
+// import { LabelSceneProvider } from './LabelScene';
 import City from './City';
 import cities from './resources/cities.json'
 
 function Game() {
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>([])
-  const labelScene = useRef(new THREE.Scene())
+  // const labelScene = useRef(new THREE.Scene())
 
   const unlockCountry = useCallback((code: string) => {
     if (code) {
@@ -21,13 +21,14 @@ function Game() {
 
   useFrame(({ gl, camera, scene }) => {
     gl.render(scene, camera)
-    gl.autoClear = false
-    gl.clearDepth()
-    gl.render(labelScene.current, camera)
-    gl.autoClear = true
+    // gl.autoClear = false
+    // gl.clearDepth()
+    // gl.render(labelScene.current, camera)
+    // gl.autoClear = true
   }, 1)
 
-  return <LabelSceneProvider scene={labelScene.current}>
+  // return <LabelSceneProvider scene={labelScene.current}>
+  return <>
     <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
     <OrbitControls
       camera={camera.current}
@@ -38,11 +39,12 @@ function Game() {
     />
     <Earth unlockedCountries={unlockedCountries} onSelectedCountryChange={unlockCountry} onClick={console.log} />
     {
-      cities.map((city, i) => 
-        <City key={i} lat={city.lat} long={city.long} name={city.name} />
+      cities.filter(city => unlockedCountries.includes(city.country)).map(city => 
+        <City key={city.name} lat={city.lat} long={city.long} name={city.name} />
       )
     }
-  </LabelSceneProvider>
+  </>
+  // </LabelSceneProvider>
 }
 
 function App() {
