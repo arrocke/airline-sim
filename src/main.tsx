@@ -1,10 +1,9 @@
-import React, { createContext, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Html, OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
-// import { LabelSceneProvider } from './LabelScene';
 import City from './City';
 import cities from './resources/cities.json'
 import { latLongDistance } from './utils';
@@ -17,8 +16,6 @@ function Game() {
   const [selectedCity, selectCity] = useState<{ name: string } | undefined>()
 
   const availableCities = cities.filter(city => unlockedCountries.includes(city.country))
-
-  // const labelScene = useRef(new THREE.Scene())
 
   const unlockCountry = useCallback((code: string) => {
     if (code) {
@@ -36,13 +33,8 @@ function Game() {
 
   useFrame(({ gl, camera, scene }) => {
     gl.render(scene, camera)
-    // gl.autoClear = false
-    // gl.clearDepth()
-    // gl.render(labelScene.current, camera)
-    // gl.autoClear = true
   }, 1)
 
-  // return <LabelSceneProvider scene={labelScene.current}>
   return <>
     <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
     <OrbitControls
@@ -59,7 +51,6 @@ function Game() {
       )
     }
   </>
-  // </LabelSceneProvider>
 }
 
 function App() {
