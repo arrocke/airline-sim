@@ -35,6 +35,7 @@ function Label({ lat, long, level = 1, children }: LabelProps) {
     ref={label}
     position={position}
     center
+    zIndexRange={[100, 0]}
     style={{
       whiteSpace: 'nowrap',
       pointerEvents: 'none',

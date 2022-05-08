@@ -3,9 +3,9 @@
 - ~~unlock countries~~
 - ~~show country labels~~
 - ~~show cities for unlocked countries~~
-- figure out way to determine demand between each city
-- select city to see population and demand
-- select cities to create route between
+- ~~figure out way to determine demand between each city~~
+- ~~select city to see population and demand~~
+- ~~select cities to create route between~~
 
 - hide/show labels based on zoom level
 - assign aircraft to route
