@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
@@ -11,6 +11,7 @@ import { latLongDistance } from './utils';
 import Hud from './Hud';
 import { City as CityFields, Route as RouteFields } from './types';
 import Route from './Route';
+import Plane from './Plane';
 
 const MAX_DIST_FOR_CLICK = 45
 const MAX_DAILY_PASSENGERS = 4500000000 / 356
@@ -39,7 +40,7 @@ function App() {
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
-  const [routes, setRoutes] = useState<RouteFields[]>([])
+  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1180000363, source: 1566593751 }])
 
   const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
 
@@ -80,7 +81,10 @@ function App() {
             const dest = cityData.find(city => city.id === route.dest)
 
             return (source && dest)
-              ?  <Route key={`${route.source}-${route.dest}`} source={source} dest={dest}/>
+              ? <Fragment key={`${route.source}-${route.dest}-route`}>
+                  <Route source={source} dest={dest}/>
+                  <Plane source={source} dest={dest}/>
+                </Fragment>
               : null
           })
         }
