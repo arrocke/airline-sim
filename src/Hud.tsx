@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import ClockDisplay from './ClockDisplay'
 import { City } from './types'
 
 export interface HudProps {
+  clock: THREE.Clock
   cities: City[]
   selectedCity?: City
   onAddRoute(dest: number): void
 }
 
-function Hud({ cities, selectedCity, onAddRoute }: HudProps) {
+function Hud({ cities, selectedCity, onAddRoute, clock }: HudProps) {
   return <div
     style={{
       left: 0,
@@ -15,7 +17,8 @@ function Hud({ cities, selectedCity, onAddRoute }: HudProps) {
       width: '100%',
       position: 'absolute',
       pointerEvents: 'none',
-      zIndex: 101 
+      zIndex: 101,
+      display: 'flex'
     }}
   >
     <div style={{ pointerEvents: 'auto', display: 'inline-block', background: 'white', border: '1px solid black' }}>
@@ -52,6 +55,8 @@ function Hud({ cities, selectedCity, onAddRoute }: HudProps) {
           : null
       }
     </div>
+    <div style={{ flexGrow: 1 }}></div>
+    <ClockDisplay clock={clock} />
   </div>
 }
 

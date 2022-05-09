@@ -1,6 +1,6 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
@@ -36,7 +36,22 @@ const cityData = cities.map(source => {
   }
 })
 
+interface ConfigureProps {
+  clock: THREE.Clock
+}
+
+function Configure({ clock }: ConfigureProps) {
+  const set = useThree(state => state.set)
+
+  useLayoutEffect(() => {
+    set({ 'clock': clock })
+  }, [clock])
+
+  return null
+}
+
 function App() {
+  const [clock] = useState(new THREE.Clock(true))
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
@@ -61,6 +76,7 @@ function App() {
   return (
     <div className="canvas-container">
       <Canvas linear flat>
+        <Configure clock={clock} />
         <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
         <OrbitControls
           camera={camera.current}
@@ -90,6 +106,7 @@ function App() {
         }
       </Canvas>
       <Hud
+        clock={clock}
         cities={cityData}
         selectedCity={selectedCity}
         onAddRoute={(dest) => selectedCity && setRoutes(routes => [...routes, { dest, source: selectedCity.id }])}
