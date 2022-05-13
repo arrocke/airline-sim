@@ -10,46 +10,31 @@ export interface PlaneProps {
   dest: City
 }
 
-const ZERO_VECTOR = new THREE.Vector3(1, 0, 0)
-const UP = new THREE.Vector3(0, 1, 0)
 const ORIGIN = new THREE.Vector3(0, 0, 0)
-const BEARING_NORMAL = new THREE.Vector3(0, 0, 1)
-const ANGULAR_SPEED = 1 / 180 * Math.PI
+const ANGULAR_SPEED = 5 / 180 * Math.PI
 
 function Plane({ source, dest }: PlaneProps) {
-  const plane = useRef<THREE.Mesh>(null)
-  const rotation = useRef(new THREE.Matrix4())
-  const direction = useRef(1)
-
   const { planeTexture } = useTexture({
     planeTexture: 'src/resources/plane.png'
   })
 
-  const start = useMemo(() => setVector3FromCoords(source), [source])
-  const end = useMemo(() => setVector3FromCoords(dest), [dest])
+  const plane = useRef<THREE.Mesh>(null)
 
-  const totalAngle = useMemo(() => start.angleTo(end), [start, end])
+  const rotation = useRef(new THREE.Matrix4())
+  const direction = useRef(1)
   const angle = useRef(0)
 
-  const bearing = useMemo(() => {
-    const direction = end.clone()
-      .sub(start)
-      .projectOnPlane(start)
-      .applyEuler(
-        new THREE.Euler().setFromRotationMatrix(
-          new THREE.Matrix4().lookAt(
-            start,
-            ORIGIN,
-            UP
-          )
-        ),
-      )
-    const angle = -ZERO_VECTOR.angleTo(direction)
+  const start = useMemo(() => setVector3FromCoords(source), [source])
+  const end = useMemo(() => setVector3FromCoords(dest), [dest])
+  const totalAngle = useMemo(() => start.angleTo(end), [start, end])
+  const up = useMemo(() => {
+    const forward = start.clone().cross(end).normalize()
     return {
-      forward: UP.clone().applyAxisAngle(BEARING_NORMAL, angle),
-      backward: UP.clone().applyAxisAngle(BEARING_NORMAL, angle + Math.PI)
+      forward,
+      backward: forward.clone().negate()
     }
   }, [start, end])
+
 
   useFrame(({}, dTime) => {
     if (plane.current) {
@@ -62,12 +47,14 @@ function Plane({ source, dest }: PlaneProps) {
         direction.current = 1
       }
 
-      plane.current.position.lerpVectors(start, end, angle.current / totalAngle).normalize()
+      plane.current.position
+        .copy(start)
+        .applyAxisAngle(up.forward, angle.current)
 
       rotation.current.lookAt(
         plane.current.position,
         ORIGIN,
-        direction.current === 1 ? bearing.forward : bearing.backward
+        direction.current === 1 ? up.forward : up.backward
       )
       plane.current.setRotationFromMatrix(rotation.current)
     }

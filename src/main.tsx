@@ -55,7 +55,10 @@ function App() {
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
-  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1180000363, source: 1566593751 }])
+  // const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1180000363, source: 1566593751 }])
+  const [routes, setRoutes] = useState<RouteFields[]>(
+    cities.filter(city => city.admin_name !== 'Lagos').map(city => ({ source: 1566593751, dest: city.id }))
+  )
 
   const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
 

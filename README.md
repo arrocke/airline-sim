@@ -7,9 +7,14 @@
 - ~~select city to see population and demand~~
 - ~~select cities to create route between~~
 
+- animate aircraft
+  - ~~airplane bearing~~
+  - ~~airplane speed~~
+  - landing delay
+  - fix overlap with other planes
+- update state on takeoff and landing
 - hide/show labels based on zoom level
 - assign aircraft to route
-- animate aircraft
 - generate traffic dynamically/randomly
 - determine cost of actions
 - figure out incentives
