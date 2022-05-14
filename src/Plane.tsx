@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { City } from './types'
+import useCoordVisiblity from './useCoordVisibility'
 import { setVector3FromCoords } from './utils'
 
 export interface PlaneProps {
@@ -20,6 +21,7 @@ function Plane({ source, dest }: PlaneProps) {
 
   const plane = useRef<THREE.Mesh>(null)
 
+  const position = useRef(new THREE.Vector3())
   const rotation = useRef(new THREE.Matrix4())
   const direction = useRef(1)
   const angle = useRef(0)
@@ -47,9 +49,10 @@ function Plane({ source, dest }: PlaneProps) {
         direction.current = 1
       }
 
-      plane.current.position
+      position.current
         .copy(start)
         .applyAxisAngle(up.forward, angle.current)
+      plane.current.position.copy(position.current)
 
       rotation.current.lookAt(
         plane.current.position,
@@ -60,9 +63,11 @@ function Plane({ source, dest }: PlaneProps) {
     }
   })
 
+  useCoordVisiblity({ position, mesh: plane, threshold: 0.45 })
+
   return <mesh ref={plane} position={[0, 0, 1]}>
     <planeGeometry args={[0.02, 0.02]} />
-    <meshBasicMaterial args={[{ map: planeTexture, transparent: true, color: 'blue' }]} />
+    <meshBasicMaterial args={[{ map: planeTexture, depthTest: false, transparent: true, color: 'blue' }]} />
   </mesh>
 }
 

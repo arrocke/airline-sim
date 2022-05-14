@@ -11,7 +11,7 @@
   - ~~airplane bearing~~
   - ~~airplane speed~~
   - landing delay
-  - fix overlap with other planes
+  - ~~fix overlap with other planes~~
 - update state on takeoff and landing
 - hide/show labels based on zoom level
 - assign aircraft to route

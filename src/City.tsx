@@ -1,7 +1,7 @@
-import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import Label from './Label'
+import useCoordVisiblity from './useCoordVisibility'
 
 export interface CityProps {
   lat: number
@@ -10,8 +10,6 @@ export interface CityProps {
 }
 
 function City({ lat, long, name }: CityProps) {
-  const cameraDirection = useRef(new THREE.Vector3())
-  const previouslyVisible = useRef<boolean>()
   const city = useRef<THREE.Mesh>(null)
 
   const position = useMemo(() => {
@@ -32,15 +30,7 @@ function City({ lat, long, name }: CityProps) {
     [position]
   )
 
-  useFrame(({ camera }) => {
-    camera.getWorldDirection(cameraDirection.current)
-    const dot = cameraDirection.current.negate().dot(position)
-    const isVisible = dot > 0.60
-    if (isVisible !== previouslyVisible.current && city.current) {
-      city.current.visible = isVisible
-      previouslyVisible.current = isVisible
-    }
-  })
+  useCoordVisiblity({ position, mesh: city })
 
   return <>
     <mesh ref={city} position={position} rotation={rotation}>

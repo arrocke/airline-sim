@@ -12,6 +12,7 @@ import Hud from './Hud';
 import { City as CityFields, Route as RouteFields } from './types';
 import Route from './Route';
 import Plane from './Plane';
+import { useClockUpdate } from './clock-utils';
 
 const MAX_DIST_FOR_CLICK = 45
 const MAX_DAILY_PASSENGERS = 4500000000 / 356
@@ -46,6 +47,8 @@ function Configure({ clock }: ConfigureProps) {
   useLayoutEffect(() => {
     set({ 'clock': clock })
   }, [clock])
+
+  useClockUpdate()
 
   return null
 }
