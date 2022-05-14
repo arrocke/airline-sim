@@ -11,7 +11,7 @@ import { latLongDistance } from './utils';
 import Hud from './Hud';
 import { City as CityFields, Route as RouteFields } from './types';
 import Route from './Route';
-import Plane from './Plane';
+import Flight from './Flight';
 import { useClockUpdate } from './clock-utils';
 
 const MAX_DIST_FOR_CLICK = 45
@@ -54,14 +54,14 @@ function Configure({ clock }: ConfigureProps) {
 }
 
 function App() {
-  const [clock] = useState(new THREE.Clock(true))
+  const [clock] = useState(new THREE.Clock(false))
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
-  // const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1180000363, source: 1566593751 }])
-  const [routes, setRoutes] = useState<RouteFields[]>(
-    cities.filter(city => city.admin_name !== 'Lagos').map(city => ({ source: 1566593751, dest: city.id }))
-  )
+  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1840034016, source: 1840020491 }])
+  // const [routes, setRoutes] = useState<RouteFields[]>(
+  //   cities.filter(city => city.admin_name !== 'Lagos').map(city => ({ source: 1566593751, dest: city.id }))
+  // )
 
   const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
 
@@ -105,7 +105,7 @@ function App() {
             return (source && dest)
               ? <Fragment key={`${route.source}-${route.dest}-route`}>
                   <Route source={source} dest={dest}/>
-                  <Plane source={source} dest={dest}/>
+                  <Flight source={source} dest={dest} departureDate={new Date(2022, 0, 1, 1)}/>
                 </Fragment>
               : null
           })

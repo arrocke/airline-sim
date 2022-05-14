@@ -1,27 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { format } from 'date-fns'
-import { setDateFromClock } from './clock-utils'
+import { setDateFromClock, useClockStore } from './clock-utils'
 
 export interface ClockDisplayProps {
   clock: THREE.Clock
 }
 
 function ClockDisplay ({ clock }: ClockDisplayProps) {
-  const date = useRef(new Date())
+  const date = useClockStore(state => state.date)
   const display = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDateFromClock(clock, date.current)
       if (display.current) {
-        display.current.innerText = format(date.current, 'MMM dd, yyyy hh:00 aaa')
+        display.current.innerText = format(date, 'MMM dd, yyyy hh:00 aaa')
       }
-    }, 1000)
+    }, 200)
     return () => clearInterval(interval)
   }, [clock])
 
-  return <div ref={display} />
+  return <div style={{ pointerEvents: 'auto' }}>
+    <div ref={display} />
+    <button onClick={() => clock.start()}>Start</button>
+  </div>
 }
 
 export default ClockDisplay

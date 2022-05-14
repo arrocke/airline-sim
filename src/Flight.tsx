@@ -2,19 +2,24 @@ import { useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { useClockStore } from './clock-utils'
 import { City } from './types'
 import useCoordVisiblity from './useCoordVisibility'
 import { setVector3FromCoords } from './utils'
 
-export interface PlaneProps {
+export interface FlightProps {
   source: City
   dest: City
+  departureDate: Date
 }
 
 const ORIGIN = new THREE.Vector3(0, 0, 0)
-const ANGULAR_SPEED = 5 / 180 * Math.PI
+const ANGULAR_SPEED_HOURLY = 6 / 180 * Math.PI
+const MS_IN_HR = 1000 * 60 * 60
 
-function Plane({ source, dest }: PlaneProps) {
+function Flight({ source, dest, departureDate }: FlightProps) {
+  const date = useClockStore(state => state.date)
+
   const { planeTexture } = useTexture({
     planeTexture: 'src/resources/plane.png'
   })
@@ -23,41 +28,28 @@ function Plane({ source, dest }: PlaneProps) {
 
   const position = useRef(new THREE.Vector3())
   const rotation = useRef(new THREE.Matrix4())
-  const direction = useRef(1)
   const angle = useRef(0)
 
   const start = useMemo(() => setVector3FromCoords(source), [source])
   const end = useMemo(() => setVector3FromCoords(dest), [dest])
   const totalAngle = useMemo(() => start.angleTo(end), [start, end])
-  const up = useMemo(() => {
-    const forward = start.clone().cross(end).normalize()
-    return {
-      forward,
-      backward: forward.clone().negate()
-    }
-  }, [start, end])
+  console.log(totalAngle)
+  const up = useMemo(() => start.clone().cross(end).normalize(), [start, end])
 
 
-  useFrame(({}, dTime) => {
+  useFrame(() => {
     if (plane.current) {
-      angle.current += direction.current * dTime * ANGULAR_SPEED
-      if (angle.current >= totalAngle) {
-        angle.current = totalAngle - (angle.current - totalAngle)
-        direction.current = -1
-      } else if (angle.current <= 0) {
-        angle.current = -angle.current 
-        direction.current = 1
-      }
+      angle.current = Math.max(0, Math.min(totalAngle, (date.getTime() - departureDate.getTime()) / MS_IN_HR * ANGULAR_SPEED_HOURLY))
 
       position.current
         .copy(start)
-        .applyAxisAngle(up.forward, angle.current)
+        .applyAxisAngle(up, angle.current)
       plane.current.position.copy(position.current)
 
       rotation.current.lookAt(
         plane.current.position,
         ORIGIN,
-        direction.current === 1 ? up.forward : up.backward
+        up
       )
       plane.current.setRotationFromMatrix(rotation.current)
     }
@@ -71,4 +63,4 @@ function Plane({ source, dest }: PlaneProps) {
   </mesh>
 }
 
-export default Plane
+export default Flight
