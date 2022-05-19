@@ -2,7 +2,7 @@ import { useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
-import { useClockStore } from './clock-utils'
+import useClockState from './clock-state'
 import { City } from './types'
 import useCoordVisiblity from './useCoordVisibility'
 import { setVector3FromCoords } from './utils'
@@ -18,7 +18,7 @@ const ANGULAR_SPEED_HOURLY = 6 / 180 * Math.PI
 const MS_IN_HR = 1000 * 60 * 60
 
 function Flight({ source, dest, departureDate }: FlightProps) {
-  const date = useClockStore(state => state.date)
+  const gameTime = useClockState(state => state.time)
 
   const { planeTexture } = useTexture({
     planeTexture: 'src/resources/plane.png'
@@ -33,13 +33,12 @@ function Flight({ source, dest, departureDate }: FlightProps) {
   const start = useMemo(() => setVector3FromCoords(source), [source])
   const end = useMemo(() => setVector3FromCoords(dest), [dest])
   const totalAngle = useMemo(() => start.angleTo(end), [start, end])
-  console.log(totalAngle)
   const up = useMemo(() => start.clone().cross(end).normalize(), [start, end])
 
 
   useFrame(() => {
     if (plane.current) {
-      angle.current = Math.max(0, Math.min(totalAngle, (date.getTime() - departureDate.getTime()) / MS_IN_HR * ANGULAR_SPEED_HOURLY))
+      angle.current = Math.max(0, Math.min(totalAngle, (gameTime.getTime() - departureDate.getTime()) / MS_IN_HR * ANGULAR_SPEED_HOURLY))
 
       position.current
         .copy(start)

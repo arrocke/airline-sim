@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
@@ -12,7 +12,7 @@ import Hud from './Hud';
 import { City as CityFields, Route as RouteFields } from './types';
 import Route from './Route';
 import Flight from './Flight';
-import { useClockUpdate } from './clock-utils';
+import useClockState from './clock-state';
 
 const MAX_DIST_FOR_CLICK = 45
 const MAX_DAILY_PASSENGERS = 4500000000 / 356
@@ -37,31 +37,29 @@ const cityData = cities.map(source => {
   }
 })
 
-interface ConfigureProps {
-  clock: THREE.Clock
-}
-
-function Configure({ clock }: ConfigureProps) {
+function Game() {
   const set = useThree(state => state.set)
+  const [clock] = useState(new THREE.Clock(false))
+  const tick = useClockState(state => state.tick)
+  const initGameState = useClockState(state => state.init)
 
   useLayoutEffect(() => {
-    set({ 'clock': clock })
-  }, [clock])
+    initGameState({ clock })
+    set({ clock })
+  }, [])
 
-  useClockUpdate()
+  useFrame(() => {
+    tick()
+  })
 
   return null
 }
 
 function App() {
-  const [clock] = useState(new THREE.Clock(false))
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
   const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1840034016, source: 1840020491 }])
-  // const [routes, setRoutes] = useState<RouteFields[]>(
-  //   cities.filter(city => city.admin_name !== 'Lagos').map(city => ({ source: 1566593751, dest: city.id }))
-  // )
 
   const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
 
@@ -82,7 +80,7 @@ function App() {
   return (
     <div className="canvas-container">
       <Canvas linear flat>
-        <Configure clock={clock} />
+        <Game />
         <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
         <OrbitControls
           camera={camera.current}
@@ -112,7 +110,6 @@ function App() {
         }
       </Canvas>
       <Hud
-        clock={clock}
         cities={cityData}
         selectedCity={selectedCity}
         onAddRoute={(dest) => selectedCity && setRoutes(routes => [...routes, { dest, source: selectedCity.id }])}

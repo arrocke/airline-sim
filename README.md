@@ -10,7 +10,7 @@
 - animate aircraft
   - ~~airplane bearing~~
   - ~~airplane speed~~
-  - landing delay
+  - ~~landing delay~~
   - ~~fix overlap with other planes~~
 - update state on takeoff and landing
 - hide/show labels based on zoom level

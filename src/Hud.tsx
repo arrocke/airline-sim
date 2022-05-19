@@ -3,13 +3,12 @@ import ClockDisplay from './ClockDisplay'
 import { City } from './types'
 
 export interface HudProps {
-  clock: THREE.Clock
   cities: City[]
   selectedCity?: City
   onAddRoute(dest: number): void
 }
 
-function Hud({ cities, selectedCity, onAddRoute, clock }: HudProps) {
+function Hud({ cities, selectedCity, onAddRoute }: HudProps) {
   return <div
     style={{
       left: 0,
@@ -56,7 +55,7 @@ function Hud({ cities, selectedCity, onAddRoute, clock }: HudProps) {
       }
     </div>
     <div style={{ flexGrow: 1 }}></div>
-    <ClockDisplay clock={clock} />
+    <ClockDisplay />
   </div>
 }
 

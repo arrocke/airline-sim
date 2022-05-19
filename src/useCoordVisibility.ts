@@ -1,8 +1,6 @@
 import { useFrame } from '@react-three/fiber'
-import { RefObject, useRef } from 'react'
+import { RefObject, useRef, useState } from 'react'
 import * as THREE from 'three'
-import create from 'zustand'
-import { useClockStore } from './clock-utils'
 
 const DOT_THRESHOLD = 0.6
 
@@ -18,10 +16,11 @@ function unRef<T>(refOrObject: T | RefObject<T>) {
 }
 
 export default function useCoordVisiblity(options: CoordVisibilityOptions) {
-  const cameraDirection = useClockStore(state => state.cameraDirection)
+  const [cameraDirection] = useState(new THREE.Vector3())
   const previouslyVisible = useRef<boolean>()
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
+    camera.getWorldDirection(cameraDirection).negate()
     const position = unRef(options.position)
     if (!position) return
     const dot = cameraDirection.dot(position)
