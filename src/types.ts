@@ -10,7 +10,6 @@ export interface City {
   lat: number;
   long: number;
   country: string;
-  capital: string;
   population: number;
   id: number;
 }

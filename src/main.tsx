@@ -26,13 +26,12 @@ const cityData = cities.map(source => {
 
   return {
     id: source.id,
-    name: source.city,
+    name: source.name,
     maxPassengers,
     destinations,
     lat: source.lat,
-    long: source.lng,
-    country: source.iso3,
-    capital: source.capital,
+    long: source.long,
+    country: source.country,
     population: source.population
   }
 })
@@ -59,7 +58,7 @@ function App() {
   const camera = useRef<THREE.PerspectiveCamera>()
   const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
   const [selectedCity, selectCity] = useState<CityFields>()
-  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 1840034016, source: 1840020491 }])
+  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 945, source: 14 }])
 
   const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
 

@@ -27,3 +27,4 @@
 - The demand between cities should be inversely proportional to the inconvience of flying through the network
 - Your reputation should diminish the longer you have inconvient routes and aren't meeting demand
 - Measure stockholder satisfaction in some form
+- Use population data by lat/long to determine population served at each city
