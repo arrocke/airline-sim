@@ -4,7 +4,7 @@ import create from "zustand";
 const TIME_CONVERSION = (60 * 60) / 3 * 1000
 const START_TIME = new Date(2022, 0, 1)
 
-export interface GameState {
+export interface ClockState {
   time: Date
   clockStart: Date
   isInitialized: boolean
@@ -16,7 +16,7 @@ export interface GameState {
   stop(): void
 }
 
-const useGameState = create<GameState>((set, get) => ({
+const useClockState = create<ClockState>((set, get) => ({
   isRunning: false,
   isInitialized: false,
   time: START_TIME,
@@ -44,4 +44,4 @@ const useGameState = create<GameState>((set, get) => ({
   }
 }))
 
-export default useGameState
+export default useClockState

@@ -1,46 +1,29 @@
-import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three';
 import Earth from './Earth'
 import City from './City';
-import cities from './resources/cities.json'
-import countries from './resources/countries.json'
-import { latLongDistance } from './utils';
 import Hud from './Hud';
-import { City as CityFields, Route as RouteFields } from './types';
 import Route from './Route';
 import Flight from './Flight';
 import useClockState from './clock-state';
-
-const MAX_DIST_FOR_CLICK = 45
-const MAX_DAILY_PASSENGERS = 4500000000 / 356
-const TOTAL_POPULATION = 7753000000
-
-const cityData = cities.map(source => {
-  const maxPassengers = MAX_DAILY_PASSENGERS * source.population / TOTAL_POPULATION
-  const destinations = cities
-    .filter(dest => dest.id !== source.id)
-    .map(dest => ({ demand: maxPassengers * dest.population / TOTAL_POPULATION, id: dest.id }))
-
-  return {
-    id: source.id,
-    name: source.name,
-    maxPassengers,
-    destinations,
-    lat: source.lat,
-    long: source.long,
-    country: source.country,
-    population: source.population
-  }
-})
+import useMapState from './map-state';
+import useAirlineState from './airline-state';
 
 function Game() {
+  const camera = useRef<THREE.PerspectiveCamera>()
   const set = useThree(state => state.set)
   const [clock] = useState(new THREE.Clock(false))
   const tick = useClockState(state => state.tick)
   const initGameState = useClockState(state => state.init)
+
+  const cities = useMapState(state => state.cities)
+  const selectCityNearCoords = useMapState(state => state.selectCityNearCoords)
+  const findCityById = useMapState(state => state.findCityById)
+
+  const { flights, routes } = useAirlineState(state => state)
 
   useLayoutEffect(() => {
     initGameState({ clock })
@@ -51,68 +34,48 @@ function Game() {
     tick()
   })
 
-  return null
+  return <>
+    <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
+    <OrbitControls
+      camera={camera.current}
+      enablePan={false}
+      enableDamping={false}
+      minDistance={1.5}
+      maxDistance={3}
+    />
+    <Earth onClick={selectCityNearCoords} />
+    {
+      cities.map(city => 
+        <City key={city.id} lat={city.lat} long={city.long} name={city.name} />
+      )
+    }
+    {
+      routes.map(route => {
+        const city1 = findCityById(route.city1)
+        const city2 = findCityById(route.city2)
+        return (city1 && city2)
+          ? <Route key={route.id} source={city1} dest={city2}/>
+          : null
+      })
+    }
+    <Suspense>
+      {
+        flights.map(flight => 
+          <Flight key={flight.id} id={flight.id} />
+        )
+      }
+    </Suspense>
+  </>
 }
 
 function App() {
-  const camera = useRef<THREE.PerspectiveCamera>()
-  const [unlockedCountries, setUnlockedCountries] = useState<string[]>(countries.map(c => c.code))
-  const [selectedCity, selectCity] = useState<CityFields>()
-  const [routes, setRoutes] = useState<RouteFields[]>([{ dest: 945, source: 14 }])
-
-  const availableCities = cityData.filter(city => unlockedCountries.includes(city.country))
-
-  const unlockCountry = useCallback((code: string) => {
-    if (code) {
-      setUnlockedCountries(countries => Array.from(new Set([...countries, code])))
-    }
-  }, [])
-
-  const onEarthClick = useCallback((lat: number, long: number) => {
-    const city = availableCities.find(city => {
-      const dist = latLongDistance(city, { lat, long })
-      return dist < MAX_DIST_FOR_CLICK
-    })
-    selectCity(city)
-  }, [availableCities])
 
   return (
     <div className="canvas-container">
       <Canvas linear flat>
         <Game />
-        <PerspectiveCamera ref={camera} makeDefault position={[0, 0, 3]}/>
-        <OrbitControls
-          camera={camera.current}
-          enablePan={false}
-          enableDamping={false}
-          minDistance={1.5}
-          maxDistance={3}
-        />
-        <Earth unlockedCountries={unlockedCountries} onSelectedCountryChange={unlockCountry} onClick={onEarthClick} />
-        {
-          availableCities.map(city => 
-            <City key={city.id} lat={city.lat} long={city.long} name={city.name} />
-          )
-        }
-        {
-          routes.map(route => {
-            const source = cityData.find(city => city.id === route.source)
-            const dest = cityData.find(city => city.id === route.dest)
-
-            return (source && dest)
-              ? <Fragment key={`${route.source}-${route.dest}-route`}>
-                  <Route source={source} dest={dest}/>
-                  <Flight source={source} dest={dest} departureDate={new Date(2022, 0, 1, 1)}/>
-                </Fragment>
-              : null
-          })
-        }
       </Canvas>
-      <Hud
-        cities={cityData}
-        selectedCity={selectedCity}
-        onAddRoute={(dest) => selectedCity && setRoutes(routes => [...routes, { dest, source: selectedCity.id }])}
-      />
+      <Hud />
     </div>
   )
 }

@@ -14,7 +14,7 @@ export interface EarthProps {
   onClick?(lat: number, long: number): void
 }
 
-function Earth ({ unlockedCountries = [], onSelectedCountryChange, onClick }: EarthProps) {
+function Earth ({ unlockedCountries, onSelectedCountryChange, onClick }: EarthProps) {
   const geometry = useRef(new THREE.SphereGeometry(1, 80, 60, -Math.PI / 2))
 
   const { indexTexture } = useTexture({

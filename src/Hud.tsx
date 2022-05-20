@@ -1,14 +1,20 @@
 import React, { useRef } from 'react'
+import useAirlineState from './airline-state'
 import ClockDisplay from './ClockDisplay'
-import { City } from './types'
+import useMapState from './map-state'
 
-export interface HudProps {
-  cities: City[]
-  selectedCity?: City
-  onAddRoute(dest: number): void
-}
 
-function Hud({ cities, selectedCity, onAddRoute }: HudProps) {
+function Hud() {
+  const cities = useMapState(state => state.cities)
+  const selectedCity = useMapState(state => state.selectedCity)
+  const addRoute = useAirlineState(state => state.addRoute)
+
+  function onAddRoute(city2: number) {
+    if (selectedCity) {
+      addRoute(selectedCity.id, city2)
+    }
+  }
+
   return <div
     style={{
       left: 0,

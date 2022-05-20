@@ -33,7 +33,7 @@ export interface CountryColorMaterialProps {
   unlockedCountries?: string[]
 }
 
-function EarthMaterial({ unlockedCountries = [] }: CountryColorMaterialProps) {
+function EarthMaterial({ unlockedCountries }: CountryColorMaterialProps) {
   const { borderTexture, indexTexture } = useTexture({
     borderTexture: 'src/resources/borders.png',
     indexTexture: 'src/resources/countries-index.png'
@@ -52,15 +52,21 @@ function EarthMaterial({ unlockedCountries = [] }: CountryColorMaterialProps) {
   }, [])
 
   useLayoutEffect(() => {
-    const selectedIndexes = countries
-      .map<[number,string]>(({ code }, i) => [i + 1, code])
-      .filter(([, code]) => unlockedCountries.includes(code))
-      .map(([index]) => index)
-    for (let i = 0; i < MAX_COUNTRIES; ++i) {
-      if (selectedIndexes.includes(i)) {
+    if (unlockedCountries) {
+      const selectedIndexes = countries
+        .map<[number,string]>(({ code }, i) => [i + 1, code])
+        .filter(([, code]) => unlockedCountries.includes(code))
+        .map(([index]) => index)
+      for (let i = 0; i < MAX_COUNTRIES; ++i) {
+        if (selectedIndexes.includes(i)) {
+          palette.set([255, 255, 255], i * 4)
+        } else {
+          palette.set([150, 150, 150], i * 4)
+        }
+      }
+    } else {
+      for (let i = 0; i < MAX_COUNTRIES; ++i) {
         palette.set([255, 255, 255], i * 4)
-      } else {
-        palette.set([150, 150, 150], i * 4)
       }
     }
     palette.set([100, 200, 255], 0);

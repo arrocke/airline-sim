@@ -2,23 +2,46 @@ import { useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import useAirlineState from './airline-state'
 import useClockState from './clock-state'
+import useMapState from './map-state'
 import { City } from './types'
 import useCoordVisiblity from './useCoordVisibility'
 import { setVector3FromCoords } from './utils'
 
 export interface FlightProps {
-  source: City
-  dest: City
-  departureDate: Date
+  id: string
 }
 
 const ORIGIN = new THREE.Vector3(0, 0, 0)
 const ANGULAR_SPEED_HOURLY = 6 / 180 * Math.PI
 const MS_IN_HR = 1000 * 60 * 60
 
-function Flight({ source, dest, departureDate }: FlightProps) {
+function Flight({ id }: FlightProps) {
   const gameTime = useClockState(state => state.time)
+
+  const findFlightById = useAirlineState(state => state.findFlightById)
+  const findCityById = useMapState(state => state.findCityById)
+
+  const flight = useMemo(
+    () => findFlightById(id),
+    [id, findFlightById]
+  )
+
+  if (!flight) return null
+
+  const { route, direction, departureDate } = flight
+
+  const source = useMemo(
+    () => findCityById(direction === 'forward' ? route.city1 : route.city2),
+    [route, direction, findCityById]
+  )
+  const dest = useMemo(
+    () => findCityById(direction === 'forward' ? route.city2 : route.city1),
+    [route, direction, findCityById]
+  )
+
+  if (!source || !dest) return null
 
   const { planeTexture } = useTexture({
     planeTexture: 'src/resources/plane.png'
